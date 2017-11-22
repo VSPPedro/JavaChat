@@ -125,15 +125,16 @@ public class Cliente extends JFrame implements ActionListener, KeyListener {
 		BufferedReader bfr = new BufferedReader(inr);
 		String msg = "";
 
-		while (!"bye".equalsIgnoreCase(msg))
-
+		while (!"bye".equalsIgnoreCase(msg)) {
 			if (bfr.ready()) {
 				msg = bfr.readLine();
-				if (msg.equals("bye"))
+				if (msg.equals("bye")) {
 					texto.append("Servidor caiu! \r\n");
-				else
+				} else {
 					texto.append(msg + "\r\n");
+				}	
 			}
+		}
 	}
 
 	public void sair() throws IOException {

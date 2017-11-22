@@ -59,15 +59,15 @@ public class Servidor extends Thread {
 			while (!"bye".equalsIgnoreCase(msg) && msg != null) {	
 				
 				// Contar a quantidade de comandos dentro da mensagem
-				int counter = 0;
+				int count = 0;
 				for( int i=0; i<msg.length(); i++ ) {
 				    if( msg.charAt(i) == ' ' ) {
-				        counter++;
+				    	count++;
 				    } 
 				}
 				
 				// Tratar a mensagem recebida
-				if (counter == 0) {
+				if (count == 0) {
 					if (msg.equals("list")) {
 						list(bfw);
 					}  else {
@@ -77,11 +77,31 @@ public class Servidor extends Thread {
 					String[] parts = msg.split(" ");
 					
 					if (parts[0].equals("send")) {
-						if (parts[1].equals("-all")) {
-							sendToAll(bfw, parts[2]);
-						} else {
+						if (count > 1 && parts[1].equals("-all")) {
+							
+							// Concatenando a mensagem
+							String temp = "";
+							
+							for (int x = 2; x < parts.length; x++) {
+								temp += " " + parts[x];
+							}
+							
+							sendToAll(bfw, temp);
+						} else if (count > 2 && parts[1].equals("-user")) {
+							String user = parts[2];
+							
+							// Concatenando a mensagem
+							String temp = "";
+							
+							for (int x = 3; x < parts.length; x++) {
+								temp += " " + parts[x];
+							}
+							
+							sendToUser(bfw, user, temp);
+						}  else {
 							invalidCommand(bfw, parts[1]);
 						}
+						
 					} else {
 						invalidCommand(bfw, parts[0]);
 					}
@@ -101,9 +121,39 @@ public class Servidor extends Thread {
 		}
 	}
 	
+	public void sendToUser(BufferedWriter bwSaida, String username, String msg) throws IOException{
+
+		int count = 0; 
+		
+		for (String clienteNome : clientesNomes) {
+			if (clienteNome.equals(username)) {
+				
+				// Obtendo IP e Port
+				socketAddress = this.con.getInetAddress().toString();
+				socketAddress = socketAddress.substring(1);
+				socketAddress = socketAddress + ":" + Integer.toString(this.con.getPort());
+				
+				// Obtendo data e hora
+				String dateStamp = new SimpleDateFormat("dd/MM/yyyy").format(Calendar.getInstance().getTime());
+				String timeStamp = new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime());
+
+				BufferedWriter bw = clientes.get(count);
+				bw.write("(Private)" + socketAddress + "/~" + nome + " : " + msg + " " + timeStamp  + " " + dateStamp + "\r\n" );
+				bwSaida.write("(Private)" +socketAddress + "/~" + nome + " : " + msg + " " + timeStamp  + " " + dateStamp + "\r\n" );
+				bw.flush();
+				bwSaida.flush();
+				return;
+			}
+			count++;
+		}
+		
+		bwSaida.write("O usuário " + username + " não está online no momento.\r\n");
+		bwSaida.flush();
+	}
+	
 	public void list(BufferedWriter bw) throws IOException{
 		
-		String result = "\n  Lista de usuários online: "  + "\r\n" ;
+		String result = "  Lista de usuários online: "  + "\r\n" ;
 		
 		for (String clienteNome : clientesNomes) {
 			result += "   " + clienteNome + "\n";
@@ -114,13 +164,13 @@ public class Servidor extends Thread {
 	}
 	
 	public void invalidCommand(BufferedWriter bw, String msg) throws IOException{
-		String result = "O comando \"" + msg + "\" é inválido." + "\n";
-		result += "Abaixo a lista de comandos válidos:" + "\n";
-		result += "  send -all <mensagem>                    Enviar mensagem ao grupo" + "\n";
-		result += "  send -user <nome_usuario> <mensagem>    Enviar mensagem reservada" + "\n";
-		result += "  list                                    Visualizar participantes" + "\n" ;
-		result += "  rename <novo_nome>                      Renomear usuário" + "\n";
-		result += "  bye                                     Sair do grupo" + "\n\n";
+		String result = "O comando \"" + msg + "\" é inválido ou não apresenta todos os seu argumentos." + "\r\n";
+		result += "Abaixo a lista de comandos válidos:" + "\r\n";
+		result += "  send -all <mensagem>                    Enviar mensagem ao grupo" + "\r\n";
+		result += "  send -user <nome_usuario> <mensagem>    Enviar mensagem reservada" + "\r\n";
+		result += "  list                                    Visualizar participantes" + "\r\n" ;
+		result += "  rename <novo_nome>                      Renomear usuário" + "\r\n";
+		result += "  bye                                     Sair do grupo" + "\r\n\n";
 		bw.write(result);
 		bw.flush();
 	}
