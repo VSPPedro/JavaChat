@@ -11,9 +11,9 @@ import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.Vector;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -21,9 +21,9 @@ import javax.swing.JTextField;
 
 public class Servidor extends Thread {
 
-	private static ArrayList<BufferedWriter> clientes;
+	private static Vector<BufferedWriter> clientes;
 	private static ServerSocket server;
-	private static ArrayList<String> clientesNomes;
+	private static Vector<String> clientesNomes;
 	private String nome;
 	private Socket con;
 	private InputStream in;
@@ -177,8 +177,8 @@ public class Servidor extends Thread {
 			Object[] texts = { lblMessage, txtPorta };
 			JOptionPane.showMessageDialog(null, texts);
 			server = new ServerSocket(Integer.parseInt(txtPorta.getText()));
-			clientes = new ArrayList<BufferedWriter>();
-			clientesNomes = new ArrayList<String>();
+			clientes = new Vector<BufferedWriter>();
+			clientesNomes = new Vector<String>();
 			JOptionPane.showMessageDialog(null, "Servidor ativo na porta: " + txtPorta.getText());
 
 			while (true) {
