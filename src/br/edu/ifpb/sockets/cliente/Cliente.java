@@ -130,9 +130,13 @@ public class Cliente extends JFrame implements ActionListener, KeyListener {
 				msg = bfr.readLine();
 				if (msg.equals("bye")) {
 					texto.append("Servidor caiu! \r\n");
+				} else if (msg.toLowerCase().contains("username".toLowerCase())) {
+					System.out.println("Teste mudar nome");
+					String[] parts = msg.split(" ");
+					txtNome = new JTextField(parts[1]);
 				} else {
 					texto.append(msg + "\r\n");
-				}	
+				}
 			}
 		}
 	}

@@ -76,7 +76,13 @@ public class Servidor extends Thread {
 				} else {
 					String[] parts = msg.split(" ");
 					
-					if (parts[0].equals("send")) {
+					if (parts[0].equals("rename")) {
+						if (count > 1) {
+							invalidCommand(bfw, msg);
+						} else {
+							rename(bfw, parts[1]);
+						}
+					} else if (parts[0].equals("send")) {
 						if (count > 1 && parts[1].equals("-all")) {
 							
 							// Concatenando a mensagem
@@ -119,6 +125,40 @@ public class Servidor extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void rename(BufferedWriter bwSaida, String username) throws IOException { 
+		
+		// Observando se o nome está em uso
+		for (String clienteNome : clientesNomes) {
+			if (clienteNome.equals(username)) {
+				
+				bwSaida.write("O nome do usuário está em uso.\r\n");
+				bwSaida.flush();
+				return;
+			}
+		}
+		
+		BufferedWriter bwS;
+		
+		//Obter index
+		int index = 0;
+		
+		for (Iterator<BufferedWriter> iterator = clientes.iterator(); iterator.hasNext();) {
+			BufferedWriter bw = iterator.next();
+			bwS = (BufferedWriter) bw;
+			
+			if (bwSaida == bwS) {
+				clientesNomes.set(index, username);
+				this.nome = username;
+				bwSaida.write("username " + username + "\r\n" );
+				break;
+			}
+		}
+		
+		bwSaida.write("Renomeado com sucesso" + "\r\n" );
+		this.nome = username;
+		bwSaida.flush();
 	}
 	
 	public void sendToUser(BufferedWriter bwSaida, String username, String msg) throws IOException{
